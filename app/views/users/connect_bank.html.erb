@@ -1,0 +1,36 @@
+<div id="weekly-budget-app"></div>
+
+<button id="link-btn">Link Account</button>
+
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+<script>
+  (function($) {
+
+    $.ajaxSetup({
+      headers: {
+        'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+      }
+    });
+
+    var handler = Plaid.create({
+        apiVersion: 'v2',
+        clientName: 'Plaid Walkthrough Demo',
+        env: 'development',
+        product: ['transactions'],
+        key: '<%= ENV["DEV_PLAID_PUBLIC_KEY"] %>',
+        onSuccess: function(public_token) {
+            $.post('/get_access_token', {public_token: public_token}, function() {
+                $('#container').fadeOut('fast', function() {
+                    $('#intro').hide();
+                    $('#app, #steps').fadeIn('slow');
+                });
+            });
+        },
+    });
+
+    $('#link-btn').on('click', function(e) {
+        handler.open();
+    });
+
+  })(jQuery);
+</script>
